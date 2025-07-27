@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue-deployment
+  namespace: flask-app
+  labels:
+    app: flask-app
+    version: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: flask-app
+      version: blue
+  template:
+    metadata:
+      labels:
+        app: flask-app
+        version: blue
+    spec:
+      containers:
+      - name: flask-app
+        image: flask-blue:latest
+        imagePullPolicy: Never  # For Minikube
+        ports:
+        - containerPort: 5000
+        env:
+        - name: ENVIRONMENT
+          value: "blue"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5

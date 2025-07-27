@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: flask-blue-green-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/YOUR_USERNAME/green-blue-demo  # Replace with your repo
+    targetRevision: HEAD
+    path: k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: flask-app  # Deploy to dedicated namespace
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  ignoreDifferences:
+  - group: networking.k8s.io
+    kind: Ingress
+    jsonPointers:
+    - /spec/rules/0/http/paths/0/backend/service/name  # Ignore blue-green switches
