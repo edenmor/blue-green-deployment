@@ -14,6 +14,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: green-service  # Start with blue
+            name: blue-service  # Switched to blue
             port:
               number: 8080
