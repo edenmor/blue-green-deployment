@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.environment.name }}-deployment
+  namespace: flask-app
+  labels:
+    app: flask-app
+    environment: {{ .Values.environment.name }}
+    version: {{ .Values.image.tag }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: flask-app
+      environment: {{ .Values.environment.name }}
+  template:
+    metadata:
+      labels:
+        app: flask-app
+        environment: {{ .Values.environment.name }}
+        version: {{ .Values.image.tag }}
+    spec:
+      containers:
+      - name: flask-app
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.service.targetPort }}
+        env:
+        - name: ENVIRONMENT
+          value: {{ .Values.environment.name }}
+        - name: VERSION
+          value: {{ .Values.image.tag }}
+        - name: ACTIVE
+          value: {{ .Values.environment.active | quote }}
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.targetPort }}
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.targetPort }}
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
