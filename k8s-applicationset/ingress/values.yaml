@@ -1,0 +1,17 @@
+# Default values for ingress-controller
+# This controls which environment (blue/green) is active
+
+activeEnvironment: "blue"  # Change this to switch environments
+
+environments:
+  blue:
+    service: "blue-service"
+    port: 8080
+  green:
+    service: "green-service"  
+    port: 80
+
+ingress:
+  host: "blue-green-demo.local"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
